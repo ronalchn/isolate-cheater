@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 
+   exit 1
+fi
+
+root=`dirname $0`
+
+if [[ "$ISOLATE_PATH" == "" ]]; then # if no environment variable set
+  if [[ ! -f "ISOLATE_PATH" ]]; then
+    echo ../moe-cms/obj/isolate/isolate > ISOLATE_PATH
+  fi
+  ISOLATE_PATH=`cat $root/ISOLATE_PATH`
+fi
+
+echo "Copying isolate from $ISOLATE_PATH"
+cp $ISOLATE_PATH $root/tmp/isolate
+
+chmod 754 $root/tmp/isolate
+echo "Allow group $SUDO_GID(`awk -F':' -v v_gid="$SUDO_GID" '{ if ( $3 == v_gid ) {print $1} }' /etc/group`) to execute isolate"
+chgrp $SUDO_GID $root/tmp/isolate
+
+echo "Setting suid on isolate"
+chmod +s $root/tmp/isolate
+
+echo "Done!"
+

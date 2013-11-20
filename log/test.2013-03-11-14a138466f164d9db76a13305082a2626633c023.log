@@ -1,0 +1,63 @@
+Make cheater programs...
+  make: Nothing to be done for `all'.
+Test metafile-writer...
+  With metafile directed at non-existent file location...
+    $ ./tmp/isolate -Mtmp/metafile --run -- ./main 2> /dev/null
+      Hello World!
+    $ cat metafile
+      >> START metafile-writer <<
+      time:0.000
+      cg-mem:0
+      exitcode:0
+      status:XX
+      message:Out of memory
+      >> END metafile-writer <<
+      time:0.000
+      time-wall:0.004
+      max-rss:952
+      csw-voluntary:1
+      csw-forced:2
+  With metafile directed at existing file location...
+    $ ./tmp/isolate -Mtmp/metafile2 --run -- ./main 2> /dev/null
+      Hello World!
+    $ cat metafile2
+      >> START metafile-writer <<
+      time:0.000
+      cg-mem:0
+      exitcode:0
+      status:XX
+      message:Out of memory
+      >> END metafile-writer <<
+      time:0.000
+      time-wall:0.004
+      max-rss:944
+      csw-voluntary:1
+      csw-forced:2
+  With metafile directed at file descriptor 3...
+    $ ./tmp/isolate -M/dev/fd/3 --run -- ./main 3> tmp/metafile3 2> /dev/null
+      Hello World!
+    $ cat metafile3
+      time:0.000
+      time-wall:0.004
+      max-rss:944
+      csw-voluntary:1
+      csw-forced:2
+      
+      message:Out of memory
+      >> END metafile-writer <<
+  With metafile directed at file descriptor 4...
+    $ ./tmp/isolate -M/dev/fd/4 --run -- ./main 4> tmp/metafile4 2> /dev/null
+      Hello World!
+    $ cat metafile4
+      >> START metafile-writer <<
+      time:0.000
+      cg-mem:0
+      exitcode:0
+      status:XX
+      message:Out of memory
+      >> END metafile-writer <<
+      time:0.000
+      time-wall:0.002
+      max-rss:952
+      csw-voluntary:1
+      csw-forced:1
