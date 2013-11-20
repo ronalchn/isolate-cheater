@@ -5,32 +5,18 @@ Test metafile-writer...
     $ ./tmp/isolate -Mtmp/metafile --run -- ./metafile-writer 2> /dev/null
       Hello World!
     $ cat metafile
-      >> START metafile-writer <<
-      time:0.000
-      cg-mem:0
-      exitcode:0
-      status:XX
-      message:Out of memory
-      >> END metafile-writer <<
       time:0.000
       time-wall:0.005
-      max-rss:948
+      max-rss:912
       csw-voluntary:1
-      csw-forced:1
+      csw-forced:3
   With metafile directed at existing file location...
     $ ./tmp/isolate -Mtmp/metafile2 --run -- ./metafile-writer 2> /dev/null
       Hello World!
     $ cat metafile2
-      >> START metafile-writer <<
       time:0.000
-      cg-mem:0
-      exitcode:0
-      status:XX
-      message:Out of memory
-      >> END metafile-writer <<
-      time:0.000
-      time-wall:0.004
-      max-rss:944
+      time-wall:0.002
+      max-rss:912
       csw-voluntary:1
       csw-forced:2
   With metafile directed at file descriptor 3...
@@ -38,8 +24,8 @@ Test metafile-writer...
       Hello World!
     $ cat metafile3
       time:0.000
-      time-wall:0.005
-      max-rss:948
+      time-wall:0.001
+      max-rss:944
       csw-voluntary:1
       csw-forced:2
       
@@ -49,15 +35,8 @@ Test metafile-writer...
     $ ./tmp/isolate -M/dev/fd/4 --run -- ./metafile-writer 4> tmp/metafile4 2> /dev/null
       Hello World!
     $ cat metafile4
-      >> START metafile-writer <<
       time:0.000
-      cg-mem:0
-      exitcode:0
-      status:XX
-      message:Out of memory
-      >> END metafile-writer <<
-      time:0.000
-      time-wall:0.003
-      max-rss:952
+      time-wall:0.002
+      max-rss:912
       csw-voluntary:1
       csw-forced:2

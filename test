@@ -12,11 +12,11 @@ make | sed "$indent"
 boxdir=`./tmp/isolate --init`
 
 echo 'Test metafile-writer...'
-cp metafile-writer/main $boxdir/box
+cp bin/metafile-writer $boxdir/box
 
 echo 'With metafile directed at non-existent file location...' | sed "$indent"
 rm -rf tmp/metafile
-testcase="./tmp/isolate -Mtmp/metafile --run -- ./main"
+testcase="./tmp/isolate -Mtmp/metafile --run -- ./metafile-writer"
 echo $ $testcase "2> /dev/null" | sed "$indent2"
 $testcase 2> /dev/null | sed "$indent3"
 echo $ cat metafile | sed "$indent2"
@@ -24,21 +24,21 @@ cat tmp/metafile | sed "$indent3"
 
 echo 'With metafile directed at existing file location...' | sed "$indent"
 echo metafile2 > tmp/metafile2
-testcase="./tmp/isolate -Mtmp/metafile2 --run -- ./main"
+testcase="./tmp/isolate -Mtmp/metafile2 --run -- ./metafile-writer"
 echo $ $testcase "2> /dev/null" | sed "$indent2"
 $testcase 2> /dev/null | sed "$indent3"
 echo $ cat metafile2 | sed "$indent2"
 cat tmp/metafile2 | sed "$indent3"
 
 echo 'With metafile directed at file descriptor 3...' | sed "$indent"
-testcase="./tmp/isolate -M/dev/fd/3 --run -- ./main"
+testcase="./tmp/isolate -M/dev/fd/3 --run -- ./metafile-writer"
 echo $ $testcase "3> tmp/metafile3 2> /dev/null" | sed "$indent2"
 $testcase 3> tmp/metafile3 2> /dev/null | sed "$indent3"
 echo $ cat metafile3 | sed "$indent2"
 cat tmp/metafile3 | sed "$indent3"
 
 echo 'With metafile directed at file descriptor 4...' | sed "$indent"
-testcase="./tmp/isolate -M/dev/fd/4 --run -- ./main"
+testcase="./tmp/isolate -M/dev/fd/4 --run -- ./metafile-writer"
 echo $ $testcase "4> tmp/metafile4 2> /dev/null" | sed "$indent2"
 $testcase 4> tmp/metafile4 2> /dev/null | sed "$indent3"
 echo $ cat metafile4 | sed "$indent2"
