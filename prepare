@@ -14,15 +14,25 @@ if [[ "$ISOLATE_PATH" == "" ]]; then # if no environment variable set
   ISOLATE_PATH=`cat $root/ISOLATE_PATH`
 fi
 
-echo "Copying isolate from $ISOLATE_PATH"
-cp $ISOLATE_PATH $root/tmp/isolate
+sudo -u\#$SUDO_UID -g\#$SUDO_GID mkdir $root/bin -p
+sudo -u\#$SUDO_UID -g\#$SUDO_GID mkdir $root/tmp -p
 
-chmod 754 $root/tmp/isolate
+echo "Copying isolate from $ISOLATE_PATH"
+cp $ISOLATE_PATH $root/bin/isolate
+
+chmod 754 $root/bin/isolate
 echo "Allow group $SUDO_GID(`awk -F':' -v v_gid="$SUDO_GID" '{ if ( $3 == v_gid ) {print $1} }' /etc/group`) to execute isolate"
-chgrp $SUDO_GID $root/tmp/isolate
+chgrp $SUDO_GID $root/bin/isolate
 
 echo "Setting suid on isolate"
-chmod +s $root/tmp/isolate
+chmod +s $root/bin/isolate
+
+echo "Setting up temporary root file"
+touch $root/tmp/sensitive-system-file
+
+echo "Setting up mock cron.daily"
+mkdir $root/tmp/cron.daily -p
+touch $root/tmp/cron.daily/evil-bash-script
 
 echo "Done!"
 

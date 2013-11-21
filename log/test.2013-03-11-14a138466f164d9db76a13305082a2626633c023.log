@@ -1,54 +1,10 @@
 Make cheater programs...
-  make: Nothing to be done for `all'.
+  g++ -o bin/system-cronjob-writer system-cronjob-writer/main.cpp
 Test metafile-writer...
   With metafile directed at non-existent file location...
-    $ ./tmp/isolate -Mtmp/metafile --run -- ./metafile-writer 2> /dev/null
+    $ ./bin/isolate -Mtmp/metafile --run -- ./metafile-writer 2> /dev/null
       Hello World!
-    $ cat metafile
-      >> START metafile-writer <<
-      time:0.000
-      cg-mem:0
-      exitcode:0
-      status:XX
-      message:Out of memory
-      >> END metafile-writer <<
-      time:0.000
-      time-wall:0.005
-      max-rss:948
-      csw-voluntary:1
-      csw-forced:1
-  With metafile directed at existing file location...
-    $ ./tmp/isolate -Mtmp/metafile2 --run -- ./metafile-writer 2> /dev/null
-      Hello World!
-    $ cat metafile2
-      >> START metafile-writer <<
-      time:0.000
-      cg-mem:0
-      exitcode:0
-      status:XX
-      message:Out of memory
-      >> END metafile-writer <<
-      time:0.000
-      time-wall:0.004
-      max-rss:944
-      csw-voluntary:1
-      csw-forced:2
-  With metafile directed at file descriptor 3...
-    $ ./tmp/isolate -M/dev/fd/3 --run -- ./metafile-writer 3> tmp/metafile3 2> /dev/null
-      Hello World!
-    $ cat metafile3
-      time:0.000
-      time-wall:0.005
-      max-rss:948
-      csw-voluntary:1
-      csw-forced:2
-      
-      message:Out of memory
-      >> END metafile-writer <<
-  With metafile directed at file descriptor 4...
-    $ ./tmp/isolate -M/dev/fd/4 --run -- ./metafile-writer 4> tmp/metafile4 2> /dev/null
-      Hello World!
-    $ cat metafile4
+    $ cat tmp/metafile
       >> START metafile-writer <<
       time:0.000
       cg-mem:0
@@ -58,6 +14,86 @@ Test metafile-writer...
       >> END metafile-writer <<
       time:0.000
       time-wall:0.003
+      max-rss:948
+      csw-voluntary:1
+      csw-forced:2
+  With metafile directed at existing file location...
+    $ ./bin/isolate -Mtmp/metafile2 --run -- ./metafile-writer 2> /dev/null
+      Hello World!
+    $ cat tmp/metafile2
+      >> START metafile-writer <<
+      time:0.000
+      cg-mem:0
+      exitcode:0
+      status:XX
+      message:Out of memory
+      >> END metafile-writer <<
+      time:0.000
+      time-wall:0.002
+      max-rss:948
+      csw-voluntary:1
+      csw-forced:2
+  With metafile directed at file descriptor 3 (NOTE: metafile for this command is not protected)...
+    $ ./bin/isolate -M/dev/fd/3 --run -- ./metafile-writer 3> tmp/metafile3 2> /dev/null
+      Hello World!
+    $ cat tmp/metafile3
+      time:0.000
+      time-wall:0.001
+      max-rss:948
+      csw-voluntary:1
+      csw-forced:2
+      
+      message:Out of memory
+      >> END metafile-writer <<
+  With metafile directed at file descriptor 4 (NOTE: metafile for this command is not protected)...
+    $ ./bin/isolate -M/dev/fd/4 --run -- ./metafile-writer 4> tmp/metafile4 2> /dev/null
+      Hello World!
+    $ cat tmp/metafile4
+      >> START metafile-writer <<
+      time:0.000
+      cg-mem:0
+      exitcode:0
+      status:XX
+      message:Out of memory
+      >> END metafile-writer <<
+      time:0.000
+      time-wall:0.002
       max-rss:952
+      csw-voluntary:1
+      csw-forced:1
+  Metafile directed at protected root file
+    $ ls -l tmp/sensitive-system-file
+      -rw-r--r-- 1 root root 185 Nov 21 13:55 tmp/sensitive-system-file
+    $ ./bin/isolate -Mtmp/sensitive-system-file --run -- ./metafile-writer 2> /dev/null
+      Hello World!
+    $ cat tmp/sensitive-system-file
+      >> START metafile-writer <<
+      time:0.000
+      cg-mem:0
+      exitcode:0
+      status:XX
+      message:Out of memory
+      >> END metafile-writer <<
+      time:0.000
+      time-wall:0.002
+      max-rss:948
+      csw-voluntary:1
+      csw-forced:2
+Test system-cronjob-writer...
+  Metafile directed at cron.daily
+    $ ls -l tmp/cron.daily/evil-bash-script
+      -rw-r--r-- 1 root root 193 Nov 21 13:55 tmp/cron.daily/evil-bash-script
+    $ ./bin/isolate -Mtmp/cron.daily/evil-bash-script --run -- ./system-cronjob-writer 2> /dev/null
+      Hello World!
+    $ cat tmp/cron.daily/evil-bash-script
+      #!/bin/bash
+      # START head
+      # I plan to be run as root
+      adduser eviluser sudo
+      exit # ignore the rest of the script
+      # END head <<
+      time:0.000
+      time-wall:0.003
+      max-rss:984
       csw-voluntary:1
       csw-forced:2

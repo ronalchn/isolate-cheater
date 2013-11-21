@@ -1,42 +1,65 @@
 Make cheater programs...
-  make: Nothing to be done for `all'.
+  g++ -o bin/system-cronjob-writer system-cronjob-writer/main.cpp
 Test metafile-writer...
   With metafile directed at non-existent file location...
-    $ ./tmp/isolate -Mtmp/metafile --run -- ./metafile-writer 2> /dev/null
+    $ ./bin/isolate -Mtmp/metafile --run -- ./metafile-writer 2> /dev/null
       Hello World!
-    $ cat metafile
+    $ cat tmp/metafile
+      time:0.000
+      time-wall:0.005
+      max-rss:916
+      csw-voluntary:1
+      csw-forced:2
+  With metafile directed at existing file location...
+    $ ./bin/isolate -Mtmp/metafile2 --run -- ./metafile-writer 2> /dev/null
+      Hello World!
+    $ cat tmp/metafile2
+      time:0.000
+      time-wall:0.002
+      max-rss:908
+      csw-voluntary:1
+      csw-forced:2
+  With metafile directed at file descriptor 3 (NOTE: metafile for this command is not protected)...
+    $ ./bin/isolate -M/dev/fd/3 --run -- ./metafile-writer 3> tmp/metafile3 2> /dev/null
+      Hello World!
+    $ cat tmp/metafile3
+      time:0.000
+      time-wall:0.002
+      max-rss:952
+      csw-voluntary:1
+      csw-forced:3
+      
+      message:Out of memory
+      >> END metafile-writer <<
+  With metafile directed at file descriptor 4 (NOTE: metafile for this command is not protected)...
+    $ ./bin/isolate -M/dev/fd/4 --run -- ./metafile-writer 4> tmp/metafile4 2> /dev/null
+      Hello World!
+    $ cat tmp/metafile4
+      time:0.000
+      time-wall:0.001
+      max-rss:912
+      csw-voluntary:1
+      csw-forced:2
+  Metafile directed at protected root file
+    $ ls -l tmp/sensitive-system-file
+      -rw-r--r-- 1 root root 185 Nov 21 13:56 tmp/sensitive-system-file
+    $ ./bin/isolate -Mtmp/sensitive-system-file --run -- ./metafile-writer 2> /dev/null
+      Hello World!
+    $ cat tmp/sensitive-system-file
       time:0.000
       time-wall:0.005
       max-rss:912
       csw-voluntary:1
       csw-forced:3
-  With metafile directed at existing file location...
-    $ ./tmp/isolate -Mtmp/metafile2 --run -- ./metafile-writer 2> /dev/null
+Test system-cronjob-writer...
+  Metafile directed at cron.daily
+    $ ls -l tmp/cron.daily/evil-bash-script
+      -rw-r--r-- 1 root root 191 Nov 21 13:56 tmp/cron.daily/evil-bash-script
+    $ ./bin/isolate -Mtmp/cron.daily/evil-bash-script --run -- ./system-cronjob-writer ronald 2> /dev/null
       Hello World!
-    $ cat metafile2
+    $ cat tmp/cron.daily/evil-bash-script
       time:0.000
-      time-wall:0.002
-      max-rss:912
-      csw-voluntary:1
-      csw-forced:2
-  With metafile directed at file descriptor 3...
-    $ ./tmp/isolate -M/dev/fd/3 --run -- ./metafile-writer 3> tmp/metafile3 2> /dev/null
-      Hello World!
-    $ cat metafile3
-      time:0.000
-      time-wall:0.001
-      max-rss:944
-      csw-voluntary:1
-      csw-forced:2
-      
-      message:Out of memory
-      >> END metafile-writer <<
-  With metafile directed at file descriptor 4...
-    $ ./tmp/isolate -M/dev/fd/4 --run -- ./metafile-writer 4> tmp/metafile4 2> /dev/null
-      Hello World!
-    $ cat metafile4
-      time:0.000
-      time-wall:0.002
-      max-rss:912
+      time-wall:0.005
+      max-rss:960
       csw-voluntary:1
       csw-forced:2
