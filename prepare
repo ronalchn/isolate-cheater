@@ -28,11 +28,11 @@ echo "Setting suid on isolate"
 chmod +s $root/bin/isolate
 
 echo "Setting up temporary root file"
-touch $root/tmp/sensitive-system-file
+echo "Sensitive info" > $root/tmp/sensitive-system-file
 
 echo "Setting up mock cron.daily"
 mkdir $root/tmp/cron.daily -p
-touch $root/tmp/cron.daily/evil-bash-script
+echo "# Benign script"> $root/tmp/cron.daily/evil-bash-script
 
 echo "Done!"
 
